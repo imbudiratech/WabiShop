@@ -11,10 +11,16 @@
 <body class="bg-light">
 
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-<div class="container">
+<nav class="navbar navbar-dark bg-dark mb-4">
+<div class="container-fluid">
 
-<a class="navbar-brand fw-bold" href="/">Wabi Shop</a>
+<!-- Hamburger Menu Button -->
+<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#categoryMenu">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<a class="navbar-brand fw-bold ms-2" href="/">Wabi Shop</a>
+
 
 <div class="d-flex align-items-center ms-auto">
 
@@ -25,12 +31,8 @@ class="form-control form-control-sm me-2"
 type="search"
 name="search"
 placeholder="Search product..."
-value="{{ request('search') }}"
->
-
-<button class="btn btn-outline-warning btn-sm">
-Search
-</button>
+value="{{ request('search') }}">
+<button class="btn btn-outline-warning btn-sm">Search</button>
 </form>
 
 <!-- Order History -->
@@ -40,32 +42,52 @@ Order History
 
 @auth
 
-<form action="/logout" method="POST" class="d-inline">
+<form action="/logout" method="POST">
 @csrf
-<button class="btn btn-danger btn-sm">
-Logout
-</button>
+<button class="btn btn-danger btn-sm">Logout</button>
 </form>
 
 @else
 
-<a href="/register" class="btn btn-outline-light btn-sm me-2">
-Register
-</a>
-
-<a href="/login" class="btn btn-outline-light btn-sm me-2">
-Login
-</a>
-
-<a href="/" class="btn btn-outline-light btn-sm">
-Home
-</a>
+<a href="/register" class="btn btn-outline-light btn-sm me-2">Register</a>
+<a href="/login" class="btn btn-outline-light btn-sm">Login</a>
 
 @endauth
 
 </div>
+
 </div>
 </nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="categoryMenu">
+
+<div class="offcanvas-header">
+<h5 class="offcanvas-title">Categories</h5>
+<button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+</div>
+
+<div class="offcanvas-body">
+
+<ul class="list-group">
+
+<li class="list-group-item">
+<a href="/" class="text-decoration-none">All Products</a>
+</li>
+
+@foreach($categories as $category)
+
+<li class="list-group-item">
+<a href="/?category={{ $category->id }}" class="text-decoration-none">
+{{ $category->name }}
+</a>
+</li>
+
+@endforeach
+
+</ul>
+
+</div>
+</div>
 
 <header>
 @yield('header')

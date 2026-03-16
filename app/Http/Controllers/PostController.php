@@ -26,10 +26,9 @@ class PostController extends Controller
     $imagePath = $request->file('image')->store('posts','public');
 
     // Find or create category
-    $category = Category::firstOrCreate([
-        'name' => $validated['category']
-    ]);
-
+   $category = Category::firstOrCreate([
+    'name' => ucfirst(strtolower(trim($validated['category'])))
+]);
     // Create product
     Post::create([
         'post' => $validated['post'],
@@ -43,47 +42,44 @@ class PostController extends Controller
 }
 
     // Home Page
-    public function home(Request $request)
+  public function home(Request $request)
 {
     $search = $request->search;
+    $category = $request->category;
 
-    $allProducts = Post::with('category')
-        ->when($search, function ($query, $search) {
-            $query->where('post', 'like', '%' . $search . '%')
-                  ->orWhereHas('category', function ($q) use ($search) {
-                      $q->where('name', 'like', '%' . $search . '%');
-                  });
-        })
-        ->inRandomOrder()
-        ->get();
+    $categories = Category::all();
+
+    $query = Post::with('category');
+
+    // Search filter
+    if ($search) {
+        $query->where('post', 'like', '%' . $search . '%')
+              ->orWhereHas('category', function ($q) use ($search) {
+                  $q->where('name', 'like', '%' . $search . '%');
+              });
+    }
+
+    // Category filter
+    if ($category) {
+        $query->where('category_id', $category);
+    }
+
+    $allProducts = $query->inRandomOrder()->get();
 
     $bestSelling = Post::withCount('orders')
-        ->with('category')
-        ->when($search, function ($query, $search) {
-            $query->where('post', 'like', '%' . $search . '%')
-                  ->orWhereHas('category', function ($q) use ($search) {
-                      $q->where('name', 'like', '%' . $search . '%');
-                  });
-        })
         ->orderBy('orders_count', 'desc')
         ->take(6)
         ->get();
 
-    $latestProducts = Post::with('category')
-        ->when($search, function ($query, $search) {
-            $query->where('post', 'like', '%' . $search . '%')
-                  ->orWhereHas('category', function ($q) use ($search) {
-                      $q->where('name', 'like', '%' . $search . '%');
-                  });
-        })
-        ->latest()
+    $latestProducts = Post::latest()
         ->take(6)
         ->get();
 
     return view('home', [
         'allProducts' => $allProducts,
         'bestSelling' => $bestSelling,
-        'latestProducts' => $latestProducts
+        'latestProducts' => $latestProducts,
+        'categories' => $categories
     ]);
 }
 }
