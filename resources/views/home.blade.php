@@ -15,7 +15,7 @@
 <div class="card shadow-sm">
 <div class="card-body">
 
-<h4 class="mb-3">Upload Product</h4>
+<h4 class="mb-3">Upload Product:</h4>
 
 <form action="/create-post" method="POST" enctype="multipart/form-data">
 @csrf
